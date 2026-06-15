@@ -2,25 +2,25 @@
 
 ## System requirement
 
-- Linux(x86_64)
+- Linux (x86_64)
 - docker
-- Ethereum node with full history
+- Ethereum and beacon chain with full history
 - Ansible 9 and Python 3.12
 
 ## Andromeda
 
-### Recommened hardware
+### Recommended hardware
 
 1. AWS c5.2xlarge with ipv4 network
-2. 500Gb ebs gp3 with 200 throughput
-3. open 30303 tcp/udp for p2p connnections
+2. 750Gb ebs gp3
+3. open 30303 tcp/udp for p2p connections
 
 ### Steps
 
-3. update `hosts.ini` file, add your remote ip and eth mainnet rpc endpoint there
-4. install docker and docker-compose by `ansible-playbook playbooks/docker.yaml`
-5. spin up your andromeda rpc by `ansible-playbook playbooks/andromeda.yaml`
-6. install docker-autoheal by `ansible-playbook playbooks/autoheal.yaml`
+1. update `hosts.ini` file, add your remote ip and eth mainnet rpc endpoint there
+2. install docker and docker-compose by `ansible-playbook playbooks/docker.yaml`
+3. spin up your andromeda rpc by `ansible-playbook playbooks/andromeda.yaml`
+4. install docker-autoheal by `ansible-playbook playbooks/autoheal.yaml`
 
 ### snapshots
 
@@ -28,28 +28,28 @@ We provided public aws ebs snapshot for you if you need them.
 
 l2geth
 
-snap-0cffd87f09b9a723d
+snap-0114d80fdd6507d60
 
 l1dtl
 
-snap-040379f7ef7beb2c0
+snap-0a3a83dc003038ad3
 
-You can use the snapshots on aws **us-east-2** region, and copy them to another region you are using.
+You can get the snapshots on aws **us-east-2** region, and copy them to another region you are using.
 
 ## Sepolia
 
-### Recommened hardware
+### Recommended hardware
 
 1. AWS c5.xlarge with ipv4 network
-2. 50Gb free disk
-3. open 30303 tcp/udp for p2p connnections
+2. 100Gb ebs gp3
+3. open 30303 tcp/udp for p2p connections
 
 ### Steps
 
-3. update `hosts.ini` file, add your remote ip and eth sepolia rpc endpoint there
-4. install docker and docker-compose by `ansible-playbook playbooks/docker.yaml`
-5. spin up your sepolia rpc by `ansible-playbook playbooks/sepolia.yaml`
-6. install docker-autoheal by `ansible-playbook playbooks/autoheal.yaml`
+1. update `hosts.ini` file, add your remote ip and eth sepolia rpc endpoint there
+2. install docker and docker-compose by `ansible-playbook playbooks/docker.yaml`
+3. spin up your sepolia rpc by `ansible-playbook playbooks/sepolia.yaml`
+4. install docker-autoheal by `ansible-playbook playbooks/autoheal.yaml`
 
 ### Snapshot
 
@@ -57,13 +57,13 @@ We provided public aws ebs snapshot for you if you need them.
 
 l2geth
 
-snap-07ed6398665bf62da
+snap-02a868bbfbafbc292
 
 l1dtl
 
-vol-02478ee8fbc049106
+snap-04b7bb8cbcd706cf9
 
-You can use the snapshots on aws **us-east-1** region, and copy them to another region you are using.
+You can get the snapshots on aws **us-east-1** region, and copy them to another region you are using.
 
 ## FAQ
 
@@ -75,7 +75,7 @@ By the way, you have to re-sync the data if you don't use it at first.
 
 2. l2geth `panic: Refund counter below zero`
 
-It can happen when you have a new instace without the snapshots.
+It can happen when you have a new instance without the snapshots.
 
 You can add `--cache.noprefetch=true` argument to your l2geth service
 
@@ -92,4 +92,18 @@ LOCAL_L2_CLIENT_HTTP=http://localhost:8549
 
 4. `Synchronisation failed, retrying err="element not found"`
 
-It means your l1dtl is syncing, you can just wait for its complete.
+It means your l1dtl is syncing, you can just wait for its completion.
+
+5. Blob data has already expired
+
+Metis uses blob transactions to publish its state and blocks to Ethereum.
+
+And the blob data are saved in beacon chain nodes, by default, they will be removed after 2 weeks for space saving.
+
+You can use the latest snapshots or use a larger retention period.
+
+If the snapshot has not been updated for too long time, you can file an issue, and we will update it asap.
+
+6. l1dtl error: response too large
+
+Add command `--rpc.batch-response-max-size=50000000` to your geth rpc node
